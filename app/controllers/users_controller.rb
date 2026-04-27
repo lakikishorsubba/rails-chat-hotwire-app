@@ -60,7 +60,7 @@ end
     end
   end
   def deactivate
-    @user = User.find(params[id])
+    @user = User.find(params[:id])
     @user.update(active: false)
   end
 
