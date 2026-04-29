@@ -1,15 +1,17 @@
 class ChatChannel < ApplicationCable::Channel
   def subscribed
-    stream_from "chat_room"  # joins this stream
+    stream_from "chat_room"
   end
 
   def unsubscribed
-    # called when browser disconnects
   end
 
   def speak(data)
+    # save to DB first
+    message = Message.create!(content: data["message"])
+    # then broadcast to all
     ActionCable.server.broadcast("chat_room", {
-      message: data["message"]
+      message: message.content
     })
   end
 end
