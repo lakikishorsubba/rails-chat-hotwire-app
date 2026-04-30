@@ -2,16 +2,17 @@ class MessagesController < ApplicationController
   def create
     message = Message.new(content: params[:content])
 
-    if params[:image].present?
-      message.image.attach(params[:image])
-    end
-
     if message.save
-      image_url = message.image.attached? ? url_for(message.image) : nil
+      # attach AFTER save
+      if params[:images].present?
+        message.images.attach(params[:images])
+      end
+
+      image_urls = message.images.attached? ? message.images.map { |img| url_for(img) } : []
 
       ActionCable.server.broadcast("chat_room", {
         message: message.content,
-        image_url: image_url,
+        image_urls: image_urls,
         time: message.created_at.in_time_zone.strftime("%H:%M")
       })
 
