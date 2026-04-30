@@ -18,11 +18,13 @@ const chatChannel = consumer.subscriptions.create("ChatChannel", {
       html += `<span style="margin-left: 6px;">${data.message}</span>`;
     }
 
-    if (data.image_url) {
-      html += `<div>
-        <img src="${data.image_url}" 
+    if (data.image_urls && data.image_urls.length > 0) {
+      data.image_urls.forEach((url) => {
+        html += `<div>
+        <img src="${url}"
              style="max-width: 200px; display: block; margin-top: 4px; border-radius: 4px;" />
       </div>`;
+      });
     }
 
     html += `</div>`;
@@ -61,11 +63,14 @@ document.addEventListener("turbo:load", () => {
 
   // send image via HTTP POST
   sendImageButton?.addEventListener("click", async () => {
-    const file = imageInput.files[0];
-    if (!file) return;
+    const files = imageInput.files;
+    if (!files) return;
 
     const formData = new FormData();
-    formData.append("image", file);
+    Array.from(files).forEach((file) => {
+      formData.append("images[]", file);
+    });
+
     formData.append("content", "");
 
     const token = document.querySelector('meta[name="csrf-token"]').content;

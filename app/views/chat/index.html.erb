@@ -1,4 +1,3 @@
-<%# app/views/chat/index.html.erb %>
 <div style="max-width: 600px; margin: 50px auto;">
   <h2>Live Chat</h2>
 
@@ -10,16 +9,20 @@
     margin-bottom: 10px;
     border-radius: 4px;
   ">
-    <% Message.order(created_at: :asc).last(50).each do |message| %>
+    <% Message.with_attached_images.order(created_at: :asc).last(50).each do |message| %>
       <div class="message" style="margin-bottom: 8px;">
         <span style="color: #888; font-size: 12px;">
           <%= message.created_at.in_time_zone.strftime("%H:%M") %>
         </span>
+
         <% if message.content.present? %>
           <span><%= message.content %></span>
         <% end %>
-        <% if message.image.attached? %>
-          <%= image_tag url_for(message.image), style: "max-width: 200px; display: block; margin-top: 4px; border-radius: 4px;" %>
+
+        <% if message.images.attached? %>
+          <% message.images.each do |image| %>
+            <%= image_tag url_for(image), style: "max-width: 200px; display: block; margin-top: 4px; border-radius: 4px;" %>
+          <% end %>
         <% end %>
       </div>
     <% end %>
@@ -46,6 +49,7 @@
         type="file"
         id="image_input"
         accept="image/*"
+        multiple
         style="flex: 1;"
       />
       <button
