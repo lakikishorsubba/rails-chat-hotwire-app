@@ -1,3 +1,4 @@
+<%# app/views/chat/index.html.erb %>
 <div style="max-width: 600px; margin: 50px auto;">
   <h2>Live Chat</h2>
 
@@ -12,25 +13,47 @@
     <% Message.order(created_at: :asc).last(50).each do |message| %>
       <div class="message" style="margin-bottom: 8px;">
         <span style="color: #888; font-size: 12px;">
-          <%= message.created_at.strftime("%H:%M") %>
+          <%= message.created_at.in_time_zone.strftime("%H:%M") %>
         </span>
-        <%= message.content %>
+        <% if message.content.present? %>
+          <span><%= message.content %></span>
+        <% end %>
+        <% if message.image.attached? %>
+          <%= image_tag url_for(message.image), style: "max-width: 200px; display: block; margin-top: 4px; border-radius: 4px;" %>
+        <% end %>
       </div>
     <% end %>
   </div>
 
-  <div style="display: flex; gap: 8px;">
-    <input
-      type="text"
-      id="message_input"
-      placeholder="Type a message..."
-      style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"
-    />
-    <button
-      id="send_button"
-      style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;"
-    >
-      Send
-    </button>
+  <div style="display: flex; flex-direction: column; gap: 8px;">
+    <div style="display: flex; gap: 8px;">
+      <input
+        type="text"
+        id="message_input"
+        placeholder="Type a message..."
+        style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"
+      />
+      <button
+        id="send_button"
+        style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;"
+      >
+        Send
+      </button>
+    </div>
+
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <input
+        type="file"
+        id="image_input"
+        accept="image/*"
+        style="flex: 1;"
+      />
+      <button
+        id="send_image_button"
+        style="padding: 8px 16px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;"
+      >
+        Send Image
+      </button>
+    </div>
   </div>
 </div>

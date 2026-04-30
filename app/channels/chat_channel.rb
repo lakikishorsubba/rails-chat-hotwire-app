@@ -11,7 +11,9 @@ class ChatChannel < ApplicationCable::Channel
     message = Message.create!(content: data["message"])
     # then broadcast to all
     ActionCable.server.broadcast("chat_room", {
-      message: message.content
+      message: message.content,
+      image_url: nil,
+      time: message.created_at.in_time_zone.strftime("%H:%M")
     })
   end
 end

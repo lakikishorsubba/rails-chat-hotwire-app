@@ -1,42 +1,81 @@
-import consumer from "channels/consumer"
+import consumer from "channels/consumer";
 
 const chatChannel = consumer.subscriptions.create("ChatChannel", {
   connected() {
-    console.log("Connected to ChatChannel")
+    console.log("Connected to ChatChannel");
   },
 
   disconnected() {
-    console.log("Disconnected")
+    console.log("Disconnected");
   },
 
   received(data) {
-    const messages = document.getElementById("messages")
-    messages.insertAdjacentHTML(
-      "beforeend",
-      `<div class="message">${data.message}</div>`
-    )
+    const messages = document.getElementById("messages");
+    let html = `<div class="message" style="margin-bottom: 8px;">
+      <span style="color: #888; font-size: 12px;">${data.time}</span>`;
+
+    if (data.message) {
+      html += `<span style="margin-left: 6px;">${data.message}</span>`;
+    }
+
+    if (data.image_url) {
+      html += `<div>
+        <img src="${data.image_url}" 
+             style="max-width: 200px; display: block; margin-top: 4px; border-radius: 4px;" />
+      </div>`;
+    }
+
+    html += `</div>`;
+    messages.insertAdjacentHTML("beforeend", html);
+    messages.scrollTop = messages.scrollHeight;
   },
 
   speak(message) {
-    this.perform("speak", { message: message })
-  }
-})
+    this.perform("speak", { message: message });
+  },
+});
 
 document.addEventListener("turbo:load", () => {
-  const button = document.getElementById("send_button")
-  const input = document.getElementById("message_input")
+  const button = document.getElementById("send_button");
+  const input = document.getElementById("message_input");
+  const imageInput = document.getElementById("image_input");
+  const sendImageButton = document.getElementById("send_image_button");
+  const messages = document.getElementById("messages");
 
+  if (messages) messages.scrollTop = messages.scrollHeight;
+
+  // send text message via WebSocket
   button?.addEventListener("click", () => {
     if (input.value.trim()) {
-      chatChannel.speak(input.value)
-      input.value = ""
+      chatChannel.speak(input.value);
+      input.value = "";
     }
-  })
+  });
 
   input?.addEventListener("keypress", (e) => {
     if (e.key === "Enter" && input.value.trim()) {
-      chatChannel.speak(input.value)
-      input.value = ""
+      chatChannel.speak(input.value);
+      input.value = "";
     }
-  })
-})
+  });
+
+  // send image via HTTP POST
+  sendImageButton?.addEventListener("click", async () => {
+    const file = imageInput.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("content", "");
+
+    const token = document.querySelector('meta[name="csrf-token"]').content;
+
+    await fetch("/messages", {
+      method: "POST",
+      headers: { "X-CSRF-Token": token },
+      body: formData,
+    });
+
+    imageInput.value = "";
+  });
+});

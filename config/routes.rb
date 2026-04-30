@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
+  get "message/create"
   resources :users
+  resources :messages, only: [ :create ]
   get "chat", to: "chat#index"
   root to: redirect("/users")
 
