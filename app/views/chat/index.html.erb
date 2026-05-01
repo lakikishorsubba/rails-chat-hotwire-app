@@ -16,7 +16,7 @@
         </span>
 
         <% if message.content.present? %>
-          <span><%= message.content %></span>
+          <div><%= message.content %></div>
         <% end %>
 
         <% if message.images.attached? %>
@@ -28,36 +28,26 @@
     <% end %>
   </div>
 
-  <div style="display: flex; flex-direction: column; gap: 8px;">
-    <div style="display: flex; gap: 8px;">
-      <input
-        type="text"
-        id="message_input"
-        placeholder="Type a message..."
-        style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"
-      />
-      <button
-        id="send_button"
-        style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;"
-      >
-        Send
-      </button>
-    </div>
+  <%# Trix rich text editor %>
+  <div style="margin-bottom: 8px;">
+    <%= tag.div data: { controller: "chat-form" } do %>
+      <trix-editor id="message_content" 
+                   style="min-height: 100px; border: 1px solid #ccc; border-radius: 4px; padding: 8px;">
+      </trix-editor>
+      <input type="hidden" id="message_content_input" name="content">
 
-    <div style="display: flex; gap: 8px; align-items: center;">
-      <input
-        type="file"
-        id="image_input"
-        accept="image/*"
-        multiple
-        style="flex: 1;"
-      />
-      <button
-        id="send_image_button"
-        style="padding: 8px 16px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;"
-      >
-        Send Image
-      </button>
-    </div>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <button id="send_rich_button"
+          style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          Send
+        </button>
+
+        <input type="file" id="image_input" accept="image/*" multiple style="flex: 1;" />
+        <button id="send_image_button"
+          style="padding: 8px 16px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          Send Image
+        </button>
+      </div>
+    <% end %>
   </div>
 </div>

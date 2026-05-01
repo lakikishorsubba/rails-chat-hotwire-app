@@ -11,7 +11,7 @@ class MessagesController < ApplicationController
       image_urls = message.images.attached? ? message.images.map { |img| url_for(img) } : []
 
       ActionCable.server.broadcast("chat_room", {
-        message: message.content,
+        message: message.content.to_s,
         image_urls: image_urls,
         time: message.created_at.in_time_zone.strftime("%H:%M")
       })
